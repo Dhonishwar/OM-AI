@@ -1,0 +1,2021 @@
+<!DOCTYPE html>
+<html lang="en">
+  <head>
+    <meta charset="UTF-8" />
+    <meta name="viewport" content="width=device-width, initial-scale=1.0, viewport-fit=cover, user-scalable=no" />
+    <title>OM AI Assistant</title>
+    <style>
+      * { box-sizing: border-box; }
+      body {
+        margin: 0;
+        font-family: Arial, sans-serif;
+        background: #0d1117;
+        color: #f3f6fb;
+      }
+      .hidden { display: none !important; }
+      .memory-btn { margin-left:auto; border:1px solid #30363d; background:#161b22; color:#f3f6fb; border-radius:10px; padding:8px 12px; cursor:pointer; }
+      .memory-btn:hover { background:#21262d; }
+
+      .landing-page {
+        min-height: 100vh;
+        background: radial-gradient(circle at top, #172235 0%, #0d1117 46%, #0b0f16 100%);
+        padding: 28px 40px 40px;
+      }
+
+      .landing-topbar {
+        max-width: 1200px;
+        margin: 0 auto;
+        display: flex;
+        align-items: center;
+        justify-content: space-between;
+      }
+
+      .brand {
+        display: flex;
+        align-items: center;
+        gap: 10px;
+        font-weight: 700;
+        font-size: 1.2rem;
+      }
+
+      .brand-mark {
+        display: inline-grid;
+        place-items: center;
+        width: 34px;
+        height: 34px;
+        border-radius: 10px;
+        background: linear-gradient(135deg, #111827, #2f3d5a);
+        border: 1px solid rgba(255,255,255,0.08);
+        color: #fff;
+      }
+
+      .landing-login-btn, .landing-btn, .primary-btn, .secondary-btn, .tab-btn, .auth-btn, .send-btn, .logout-btn, .new-chat-btn, .prompt-chip {
+        cursor: pointer;
+        font: inherit;
+      }
+
+      .landing-login-btn {
+        background: rgba(255,255,255,0.05);
+        color: white;
+        border: 1px solid rgba(255,255,255,0.08);
+        border-radius: 12px;
+        padding: 0.8rem 1.1rem;
+        font-weight: 700;
+      }
+
+      .landing-content {
+        max-width: 1200px;
+        margin: 0 auto;
+        min-height: calc(100vh - 120px);
+        display: grid;
+        grid-template-columns: 1.1fr 0.9fr;
+        align-items: center;
+        gap: 40px;
+      }
+
+      .landing-eyebrow {
+        margin: 0 0 18px;
+        color: #8db9ff;
+        letter-spacing: 0.18em;
+        font-size: 0.74rem;
+        font-weight: 700;
+      }
+
+      .landing-copy h1 {
+        margin: 0;
+        font-size: clamp(2.8rem, 5vw, 5rem);
+        line-height: 1.04;
+        max-width: 620px;
+      }
+
+      .landing-text {
+        margin: 22px 0 0;
+        max-width: 600px;
+        color: rgba(255,255,255,0.72);
+        font-size: 1.14rem;
+        line-height: 1.75;
+      }
+
+      .landing-actions {
+        display: flex;
+        gap: 16px;
+        margin-top: 28px;
+        flex-wrap: wrap;
+      }
+
+      .landing-btn, .primary-btn, .secondary-btn, .auth-btn, .send-btn {
+        padding: 1rem 1.5rem;
+        border-radius: 14px;
+        font-weight: 800;
+        border: none;
+      }
+
+      .primary-btn, .auth-btn, .send-btn {
+        background: #f3f6fb;
+        color: #101827;
+      }
+
+      .secondary-btn {
+        background: rgba(255,255,255,0.04);
+        color: #fff;
+        border: 1px solid rgba(255,255,255,0.08);
+      }
+
+      .landing-preview {
+        display: flex;
+        justify-content: center;
+      }
+
+      .preview-window {
+        width: min(100%, 520px);
+        background: rgba(15,20,29,0.9);
+        border: 1px solid rgba(255,255,255,0.08);
+        border-radius: 22px;
+        overflow: hidden;
+        box-shadow: 0 26px 70px rgba(0,0,0,0.4);
+      }
+
+      .preview-header {
+        display: flex;
+        gap: 8px;
+        padding: 14px 16px;
+        border-bottom: 1px solid rgba(255,255,255,0.06);
+        background: rgba(255,255,255,0.02);
+      }
+
+      .preview-header span {
+        width: 12px;
+        height: 12px;
+        border-radius: 50%;
+        display: block;
+      }
+
+      .preview-header span:nth-child(1) { background: #ff5f57; }
+      .preview-header span:nth-child(2) { background: #febc2e; }
+      .preview-header span:nth-child(3) { background: #28c840; }
+
+      .preview-body {
+        padding: 18px;
+        display: flex;
+        flex-direction: column;
+        gap: 12px;
+      }
+
+      .preview-message {
+        max-width: 80%;
+        padding: 0.8rem 0.9rem;
+        border-radius: 14px;
+        line-height: 1.5;
+      }
+
+      .preview-message.user {
+        margin-left: auto;
+        background: rgba(143, 178, 255, 0.14);
+        border: 1px solid rgba(143,178,255,0.18);
+      }
+
+      .preview-message.assistant {
+        background: rgba(255,255,255,0.03);
+        border: 1px solid rgba(255,255,255,0.08);
+      }
+
+      .auth-overlay {
+        position: fixed;
+        inset: 0;
+        display: grid;
+        place-items: center;
+        background: rgba(3,6,12,0.8);
+        backdrop-filter: blur(10px);
+        z-index: 50;
+      }
+
+      .auth-card {
+        width: min(100%, 420px);
+        background: rgba(255,255,255,0.03);
+        border: 1px solid rgba(255,255,255,0.08);
+        border-radius: 28px;
+        padding: 28px 24px 22px;
+        box-shadow: 0 24px 60px rgba(0,0,0,0.35);
+      }
+
+      .auth-brand {
+        display: flex;
+        align-items: center;
+        justify-content: center;
+        gap: 10px;
+        font-size: 1.6rem;
+        font-weight: 700;
+        margin-bottom: 18px;
+      }
+
+      .auth-tabs {
+        display: grid;
+        grid-template-columns: 1fr 1fr;
+        gap: 8px;
+        background: rgba(255,255,255,0.03);
+        border: 1px solid rgba(255,255,255,0.06);
+        border-radius: 14px;
+        padding: 6px;
+        margin-bottom: 26px;
+      }
+
+      .tab-btn {
+        padding: 0.8rem 0.6rem;
+        border-radius: 10px;
+        border: none;
+        background: transparent;
+        color: rgba(255,255,255,0.72);
+        font-weight: 700;
+      }
+
+      .tab-btn.active {
+        background: rgba(255,255,255,0.08);
+        color: #ffffff;
+      }
+
+      .auth-panel { display: none; }
+      .auth-panel.active { display: block; }
+
+      .auth-card h2 {
+        margin: 0 0 18px;
+        font-size: 2rem;
+        text-align: center;
+      }
+
+      .login-form {
+        display: grid;
+        gap: 18px;
+      }
+
+      .login-form label {
+        display: grid;
+        gap: 8px;
+        font-weight: 600;
+      }
+
+      .login-form span { color: rgba(255,255,255,0.82); }
+
+      .login-form input {
+        width: 100%;
+        background: rgba(255,255,255,0.02);
+        color: #fff;
+        border: 1px solid rgba(255,255,255,0.08);
+        border-radius: 12px;
+        padding: 0.95rem 1rem;
+        outline: none;
+      }
+
+      .login-form input:focus {
+        border-color: rgba(144,171,255,0.9);
+        box-shadow: 0 0 0 3px rgba(144,171,255,0.15);
+      }
+
+      .login-error {
+        min-height: 22px;
+        margin: 0;
+        color: #ff9a9a;
+        font-size: 0.92rem;
+      }
+
+      .app-shell {
+        height: 100vh;
+        background: #0d1117;
+        overflow: hidden;
+      }
+
+      .chat-layout {
+        display: grid;
+        grid-template-columns: 260px 1fr;
+        height: 100vh;
+        min-height: 0;
+        overflow: hidden;
+      }
+
+      .sidebar {
+        background: #111827;
+        border-right: 1px solid rgba(255,255,255,0.06);
+        display: flex;
+        flex-direction: column;
+        padding: 18px 12px;
+        height: 100vh;
+        min-height: 0;
+        overflow: hidden;
+      }
+
+      .sidebar-header {
+        display: flex;
+        align-items: center;
+        justify-content: space-between;
+        gap: 12px;
+        padding: 6px 8px 18px;
+      }
+
+      .new-chat-btn {
+        background: rgba(255,255,255,0.04);
+        color: #fff;
+        border: 1px solid rgba(255,255,255,0.08);
+        border-radius: 10px;
+        padding: 0.55rem 0.7rem;
+      }
+
+      .sidebar-section {
+        margin-top: 8px;
+        padding: 0 6px;
+      }
+
+      .section-label {
+        margin: 0 0 10px;
+        color: rgba(255,255,255,0.5);
+        font-size: 0.75rem;
+        text-transform: uppercase;
+        letter-spacing: 0.08em;
+      }
+
+      .chat-list-item {
+        padding: 0.8rem 0.9rem;
+        border-radius: 10px;
+        color: rgba(255,255,255,0.8);
+        background: transparent;
+        margin-bottom: 6px;
+      }
+
+      .chat-list-item.active {
+        background: rgba(255,255,255,0.04);
+        border: 1px solid rgba(255,255,255,0.06);
+      }
+
+      .sidebar-footer {
+        margin-top: auto;
+        padding: 12px 8px 0;
+        flex-shrink: 0;
+        border-top: 1px solid rgba(255,255,255,0.06);
+        display: flex;
+        align-items: center;
+        justify-content: space-between;
+        gap: 12px;
+      }
+
+      .user-pill {
+        display: flex;
+        align-items: center;
+        gap: 10px;
+      }
+
+      .avatar {
+        width: 26px;
+        height: 26px;
+        border-radius: 50%;
+        background: linear-gradient(135deg, #ffd364, #ff9a5f);
+        color: #111827;
+        display: grid;
+        place-items: center;
+        font-size: 0.8rem;
+        font-weight: 800;
+      }
+
+      .logout-btn {
+        background: transparent;
+        border: 1px solid rgba(255,255,255,0.08);
+        color: rgba(255,255,255,0.8);
+        padding: 0.6rem 0.8rem;
+        border-radius: 10px;
+      }
+
+      .chat-main {
+        display: flex;
+        flex-direction: column;
+        min-width: 0;
+        min-height: 0;
+        background: #0d1117;
+        overflow: hidden;
+      }
+
+      .chat-header {
+        padding: 18px 26px 10px;
+        border-bottom: 1px solid rgba(255,255,255,0.06);
+      }
+
+      .header-title {
+        font-weight: 700;
+        color: rgba(255,255,255,0.9);
+      }
+
+      .chat-box {
+        flex: 1;
+        overflow-y: auto;
+        padding: 26px 26px 10px;
+        display: flex;
+        flex-direction: column;
+        gap: 18px;
+      }
+
+      .message-row {
+        display: flex;
+        align-items: flex-start;
+        gap: 12px;
+        max-width: 90%;
+      }
+
+      .message-row.user { margin-left: auto; flex-direction: row-reverse; }
+
+      .message-avatar {
+        width: 32px;
+        height: 32px;
+        border-radius: 8px;
+        display: grid;
+        place-items: center;
+        background: linear-gradient(135deg, #5ca7ff, #7df7d2);
+        color: #07111d;
+        font-size: 0.8rem;
+        font-weight: 800;
+        flex-shrink: 0;
+      }
+
+      .message-row.user .message-avatar {
+        background: linear-gradient(135deg, #d1d5db, #9ca3af);
+        color: #111827;
+      }
+
+      .message-bubble {
+        background: rgba(255,255,255,0.04);
+        border: 1px solid rgba(255,255,255,0.05);
+        border-radius: 18px;
+        padding: 0.9rem 1rem;
+        color: rgba(255,255,255,0.96);
+        line-height: 1.7;
+      }
+
+      .message-row.user .message-bubble {
+        background: rgba(92,167,255,0.12);
+        border-color: rgba(92,167,255,0.25);
+      }
+
+      .message-bubble p { margin: 0; }
+
+      .composer-wrap {
+        padding: 12px 26px 22px;
+        border-top: 1px solid rgba(255,255,255,0.06);
+      }
+
+      .composer-box {
+        display: flex;
+        align-items: flex-end;
+        gap: 12px;
+        background: rgba(255,255,255,0.03);
+        border: 1px solid rgba(255,255,255,0.08);
+        border-radius: 18px;
+        padding: 12px 14px;
+      }
+
+      #chat-input {
+        flex: 1;
+        border: none;
+        background: transparent;
+        color: #fff;
+        resize: none;
+        min-height: 48px;
+        max-height: 200px;
+        outline: none;
+        font-size: 1rem;
+        line-height: 1.5;
+      }
+
+      #chat-input::placeholder { color: rgba(255,255,255,0.45); }
+
+      .send-btn {
+        width: 110px;
+        height: 48px;
+        padding: 0;
+      }
+
+      /* Keep touch targets reliable on phones. */
+      .voice-btn, .send-btn {
+        -webkit-tap-highlight-color: transparent;
+        touch-action: manipulation;
+      }
+
+      .voice-btn {
+        width: 48px;
+        height: 48px;
+        flex-shrink: 0;
+        border-radius: 12px;
+        border: 1px solid rgba(255,255,255,0.08);
+        background: rgba(255,255,255,0.04);
+        color: #fff;
+        cursor: pointer;
+        font-size: 1.2rem;
+      }
+
+      .voice-btn.listening {
+        background: rgba(255,92,92,0.18);
+        border-color: rgba(255,120,120,0.5);
+        animation: voicePulse 1.1s infinite;
+      }
+
+      .voice-btn.speaking {
+        background: rgba(92,167,255,0.16);
+        border-color: rgba(92,167,255,0.45);
+      }
+
+      @keyframes voicePulse {
+        0%, 100% { transform: scale(1); }
+        50% { transform: scale(1.06); }
+      }
+
+      .voice-status {
+        min-height: 18px;
+        margin-top: 7px;
+        color: rgba(255,255,255,0.52);
+        font-size: 0.78rem;
+      }
+
+      .quick-prompts {
+        display: flex;
+        flex-wrap: wrap;
+        gap: 10px;
+        margin-top: 14px;
+      }
+
+      .prompt-chip {
+        background: rgba(255,255,255,0.03);
+        color: rgba(255,255,255,0.8);
+        border: 1px solid rgba(255,255,255,0.06);
+        border-radius: 999px;
+        padding: 0.7rem 0.9rem;
+      }
+
+
+      @media (max-width: 600px) {
+        html, body { width: 100%; height: 100%; overflow: hidden; }
+        .app-shell { height: 100dvh; }
+        .chat-layout { height: 100dvh; }
+        .chat-main { height: 100dvh; }
+        .chat-header { padding: 14px 16px 10px; }
+        .chat-box { padding: 18px 14px 10px; }
+        .composer-wrap {
+          padding: 10px 10px calc(10px + env(safe-area-inset-bottom));
+        }
+        .composer-box {
+          gap: 7px;
+          padding: 8px;
+          border-radius: 16px;
+        }
+        #chat-input {
+          min-width: 0;
+          min-height: 44px;
+          font-size: 16px;
+        }
+        .voice-btn {
+          width: 46px;
+          height: 46px;
+          font-size: 1.15rem;
+        }
+        .send-btn {
+          width: 72px;
+          height: 46px;
+          font-size: 0.9rem;
+        }
+        .voice-status {
+          padding: 0 4px;
+          font-size: 0.75rem;
+          line-height: 1.35;
+        }
+      }
+
+
+      .sidebar-toggle { display:none; }
+      .sidebar-backdrop { display:none; }
+      @media (max-width: 860px) {
+        .chat-layout { position:relative; }
+        .sidebar { display:flex; position:absolute; z-index:30; left:0; top:0; width:min(82vw,300px); transform:translateX(-105%); transition:transform .25s ease; box-shadow:18px 0 50px rgba(0,0,0,.35); }
+        .chat-layout.sidebar-open .sidebar { transform:translateX(0); }
+        .sidebar-toggle { display:inline-grid; place-items:center; width:42px; height:42px; margin-right:10px; border:1px solid rgba(255,255,255,.08); border-radius:11px; background:rgba(255,255,255,.04); color:#fff; font-size:1.25rem; cursor:pointer; }
+        .sidebar-backdrop { position:absolute; inset:0; z-index:20; background:rgba(0,0,0,.48); }
+        .chat-layout.sidebar-open .sidebar-backdrop { display:block; }
+      }
+      @media (max-width: 860px) {
+        .landing-content {
+          grid-template-columns: 1fr;
+          padding-top: 30px;
+        }
+        .chat-layout { grid-template-columns: 1fr; }
+        .sidebar { display: none; }
+      }
+    </style>
+  </head>
+  <body>
+    <div id="landing-page" class="landing-page">
+      <header class="landing-topbar">
+        <div class="brand">
+          <span class="brand-mark">O</span>
+          <span>OM</span>
+        </div>
+        <button id="open-login-btn" class="landing-login-btn">Log in</button>
+      </header>
+
+      <main class="landing-content">
+        <div class="landing-copy">
+          <p class="landing-eyebrow">AI VIRTUAL ASSISTANT</p>
+          <h1>Your everyday assistant, built for smarter work.</h1>
+          <p class="landing-text">
+            Nova helps with quick answers, task support, date and time, calculations, web searches,
+            and productivity inside a clean ChatGPT-style experience.
+          </p>
+
+          <div class="landing-actions">
+            <button id="landing-cta" class="primary-btn landing-btn">Get started</button>
+            
+          </div>
+        </div>
+
+        <div class="landing-preview">
+          <div class="preview-window">
+            <div class="preview-header">
+              <span></span><span></span><span></span>
+            </div>
+            <div class="preview-body">
+              <div class="preview-message user">What time is it?</div>
+              <div class="preview-message assistant">It is 10:45 AM.</div>
+              <div class="preview-message user">Calculate 15 * 8</div>
+              <div class="preview-message assistant">The answer is 120.</div>
+            </div>
+          </div>
+        </div>
+      </main>
+    </div>
+
+    <div id="auth-overlay" class="auth-overlay hidden">
+      <div class="auth-card">
+        <div class="auth-brand">
+          <span class="brand-mark">O</span>
+          <span>OM</span>
+        </div>
+
+        <div class="auth-tabs">
+          <button id="show-login" class="tab-btn active" type="button">Log in</button>
+          <button id="show-signup" class="tab-btn" type="button">Sign up</button>
+        </div>
+
+        <div id="login-panel" class="auth-panel active">
+          <h2>Welcome back</h2>
+
+          <form id="login-form" class="login-form">
+            <label>
+              <span>Username</span>
+              <input id="login-username" type="text" placeholder="Enter your username" required />
+            </label>
+
+            <label>
+              <span>Password</span>
+              <input id="login-password" type="password" placeholder="Enter your password" required />
+            </label>
+
+            <button type="submit" class="primary-btn auth-btn">Log in</button>
+            <p id="login-error" class="login-error" aria-live="polite"></p>
+          </form>
+        </div>
+
+        <div id="signup-panel" class="auth-panel">
+          <h2>Create account</h2>
+
+          <form id="signup-form" class="login-form">
+            <label>
+              <span>Full name</span>
+              <input id="signup-name" type="text" placeholder="Your full name" required />
+            </label>
+
+            <label>
+              <span>Username</span>
+              <input id="signup-username" type="text" placeholder="Choose a username" required />
+            </label>
+
+            <label>
+              <span>Password</span>
+              <input id="signup-password" type="password" placeholder="Create a password" required />
+            </label>
+
+            <button type="submit" class="primary-btn auth-btn">Create account</button>
+            <p id="signup-error" class="login-error" aria-live="polite"></p>
+          </form>
+        </div>
+      </div>
+    </div>
+
+    <div id="app-shell" class="app-shell hidden">
+      <div class="chat-layout">
+        <aside class="sidebar">
+          <div class="sidebar-header">
+            <div class="brand">
+              <span class="brand-mark">O</span>
+              <span>OM</span>
+            </div>
+            <button class="new-chat-btn">+ New chat</button>
+          </div>
+
+          <div class="sidebar-section">
+            <p class="section-label">Recent</p>
+            <div class="chat-list-item active">Welcome</div>
+            <div class="chat-list-item">Math helper</div>
+            <div class="chat-list-item">Weather info</div>
+          </div>
+
+          <div class="sidebar-footer">
+            <div class="user-pill">
+              <span class="avatar">U</span>
+              <span id="user-badge">Guest</span>
+            </div>
+            <button id="logout-btn" class="logout-btn">Login</button>
+          </div>
+        </aside>
+
+        <main class="chat-main">
+          <header class="chat-header">
+            <div class="header-title">OM AI Assistant</div>
+            <button id="memory-btn" class="memory-btn" type="button">🧠 Memory</button>
+          </header>
+
+          <section id="chat-box" class="chat-box" aria-live="polite">
+            <div class="message-row assistant">
+              <div class="message-avatar">O</div>
+              <div class="message-bubble">
+                <p>Hello! I’m OM. Ask me about the time, date, math, weather, or web searches.</p>
+              </div>
+            </div>
+          </section>
+
+          <div class="composer-wrap">
+            <div class="composer-box">
+              <textarea id="chat-input" rows="1" placeholder="Message OM..."></textarea>
+              <button id="voice-btn" class="voice-btn" type="button" title="Voice chat" aria-label="Start voice chat">🎤</button>
+              <button id="send-btn" class="send-btn">Send</button>
+            </div>
+            <div id="voice-status" class="voice-status" aria-live="polite"></div>
+            <div class="quick-prompts">
+              <button class="prompt-chip">What time is it?</button>
+              <button class="prompt-chip">Calculate 25 * 12</button>
+              <button class="prompt-chip">Weather in Tirupati</button>
+            </div>
+          </div>
+        </main>
+      </div>
+    </div>
+
+    <script>
+      const landingPage = document.getElementById('landing-page');
+      const authOverlay = document.getElementById('auth-overlay');
+      const appShell = document.getElementById('app-shell');
+      const openLoginBtn = document.getElementById('open-login-btn');
+      const landingCta = document.getElementById('landing-cta');
+      const showLoginBtn = document.getElementById('show-login');
+      const showSignupBtn = document.getElementById('show-signup');
+      const loginPanel = document.getElementById('login-panel');
+      const signupPanel = document.getElementById('signup-panel');
+      const loginForm = document.getElementById('login-form');
+      const signupForm = document.getElementById('signup-form');
+      const loginError = document.getElementById('login-error');
+      const signupError = document.getElementById('signup-error');
+      const userBadge = document.getElementById('user-badge');
+      const logoutBtn = document.getElementById('logout-btn');
+      const chatBox = document.getElementById('chat-box');
+      const chatInput = document.getElementById('chat-input');
+      const sendBtn = document.getElementById('send-btn');
+      const voiceBtn = document.getElementById('voice-btn');
+      const voiceStatus = document.getElementById('voice-status');
+      const chatLayout = document.querySelector('.chat-layout');
+      const sidebarToggle = document.getElementById('sidebar-toggle');
+      const sidebarBackdrop = document.getElementById('sidebar-backdrop');
+      const memoryBtn = document.getElementById('memory-btn');
+      function toggleSidebar() { chatLayout.classList.toggle('sidebar-open'); }
+      sidebarToggle?.addEventListener('click', toggleSidebar);
+      sidebarBackdrop?.addEventListener('click', () => chatLayout.classList.remove('sidebar-open'));
+
+
+      // ===== MOBILE VOICE CHAT =====
+      // Uses the browser's built-in Speech Recognition when the browser supports it.
+      // IMPORTANT: microphone speech recognition generally requires HTTPS (or localhost).
+      const SpeechRecognitionAPI =
+        window.SpeechRecognition ||
+        window.webkitSpeechRecognition ||
+        window.mozSpeechRecognition ||
+        window.msSpeechRecognition;
+
+      let recognition = null;
+      let isListening = false;
+      let isSpeaking = false;
+      let voiceStarting = false;
+      let voiceHadResult = false;
+      let voiceFinalText = '';
+
+      function voiceLang() {
+        const lang = (navigator.language || '').toLowerCase();
+        return lang === 'en-in' || lang.startsWith('en-in') ? 'en-IN' : (navigator.language || 'en-US');
+      }
+
+      function setVoiceUI(listening) {
+        isListening = listening;
+        voiceStarting = false;
+        voiceBtn.classList.toggle('listening', listening);
+        voiceBtn.classList.toggle('speaking', isSpeaking);
+        voiceBtn.textContent = isSpeaking ? '🔊' : (listening ? '⏹️' : '🎤');
+        voiceBtn.setAttribute('aria-label', isSpeaking ? 'Stop speaking' :
+          (listening ? 'Stop voice input' : 'Start voice input'));
+      }
+
+      function showVoiceError(message) {
+        setVoiceUI(false);
+        voiceStatus.textContent = message;
+      }
+
+      let voiceConversationMode = false;
+      let voiceSending = false;
+      let voiceSilenceTimer = null;
+
+      function clearVoiceSilenceTimer() {
+        if (voiceSilenceTimer) {
+          clearTimeout(voiceSilenceTimer);
+          voiceSilenceTimer = null;
+        }
+      }
+
+      function createRecognition() {
+        if (!SpeechRecognitionAPI) return null;
+
+        const r = new SpeechRecognitionAPI();
+        r.continuous = true;
+        r.interimResults = true;
+        r.maxAlternatives = 1;
+        r.lang = voiceLang();
+
+        r.onstart = () => {
+          voiceStarting = false;
+          voiceHadResult = false;
+          voiceFinalText = '';
+          setVoiceUI(true);
+          voiceStatus.textContent = '🎙️ Listening… speak now.';
+        };
+
+        r.onspeechstart = () => {
+          clearVoiceSilenceTimer();
+          voiceStatus.textContent = '🎙️ I can hear you…';
+        };
+
+        r.onresult = (event) => {
+          let finalPart = '';
+          let interimPart = '';
+
+          for (let i = event.resultIndex; i < event.results.length; i++) {
+            const transcript = event.results[i][0]?.transcript || '';
+            if (event.results[i].isFinal) finalPart += transcript;
+            else interimPart += transcript;
+          }
+
+          if (finalPart.trim()) {
+            voiceFinalText += ' ' + finalPart.trim();
+            voiceHadResult = true;
+          }
+
+          const visibleText = (voiceFinalText + ' ' + interimPart).trim();
+          if (visibleText) {
+            chatInput.value = visibleText;
+            voiceHadResult = true;
+
+            // Wait briefly after the user stops speaking before sending.
+            // This prevents OM from cutting off natural pauses between words.
+            clearVoiceSilenceTimer();
+            voiceSilenceTimer = setTimeout(() => {
+              const text = chatInput.value.trim();
+              if (!text || !voiceHadResult || voiceSending) return;
+              voiceSending = true;
+              voiceStatus.textContent = 'Sending…';
+              try { r.stop(); } catch (_) {}
+            }, 1400);
+          }
+        };
+
+        r.onerror = (event) => {
+          voiceStarting = false;
+          const error = event.error || 'unknown';
+
+          if (error === 'not-allowed' || error === 'service-not-allowed') {
+            voiceConversationMode = false;
+            showVoiceError('🎤 Microphone blocked. Tap the 🔒 icon in the browser address bar → Site settings → Microphone → Allow, then reload OM.');
+          } else if (error === 'audio-capture') {
+            voiceConversationMode = false;
+            showVoiceError('🎤 Microphone unavailable. Close other apps using the microphone and try again.');
+          } else if (error === 'network') {
+            voiceConversationMode = false;
+            showVoiceError('🌐 Voice recognition needs internet. Check your connection and try again.');
+          } else if (error === 'no-speech') {
+            // In conversation mode, simply keep listening instead of treating silence as an error.
+            if (!voiceConversationMode) {
+              showVoiceError('I didn’t hear you. Tap 🎤, wait for “Listening…”, then speak.');
+            }
+          } else if (error !== 'aborted') {
+            voiceConversationMode = false;
+            showVoiceError('Voice error: ' + error + '. Try Chrome on Android or Safari on iPhone.');
+          }
+        };
+
+        r.onend = () => {
+          voiceStarting = false;
+          clearVoiceSilenceTimer();
+          const text = chatInput.value.trim();
+
+          if (voiceSending && text && voiceHadResult) {
+            voiceSending = false;
+            setVoiceUI(false);
+            voiceStatus.textContent = 'Sending…';
+            handleSend(true);
+            return;
+          }
+
+          if (voiceConversationMode && !isSpeaking && !voiceSending) {
+            // Browsers can end recognition automatically. Restart it so OM stays hands-free.
+            setTimeout(() => {
+              if (!voiceConversationMode || isSpeaking || voiceSending) return;
+              try {
+                recognition = createRecognition();
+                recognition.lang = voiceLang();
+                recognition.start();
+              } catch (_) {}
+            }, 250);
+            return;
+          }
+
+          setVoiceUI(false);
+        };
+
+        return r;
+      }
+
+      recognition = createRecognition();
+
+      if (!recognition) {
+        voiceStatus.textContent =
+          'Voice input is unavailable in this browser. Open OM in Chrome on Android or Safari on iPhone.';
+        voiceBtn.title = 'Voice input unavailable';
+      }
+
+      function stopVoice() {
+        voiceConversationMode = false;
+        voiceSending = false;
+        clearVoiceSilenceTimer();
+        if (recognition) {
+          try { recognition.abort(); } catch (_) {}
+        }
+        voiceStarting = false;
+        setVoiceUI(false);
+      }
+
+      function stopSpeaking() {
+        if ('speechSynthesis' in window) {
+          try { window.speechSynthesis.cancel(); } catch (_) {}
+        }
+        isSpeaking = false;
+        setVoiceUI(false);
+        if (voiceConversationMode) {
+          setTimeout(() => startVoiceRecognition(), 250);
+        }
+      }
+
+      function speakReply(text) {
+        if (!('speechSynthesis' in window)) {
+          if (voiceConversationMode) startVoiceRecognition();
+          return;
+        }
+
+        const spoken = String(text)
+          .replace(/https?:\/\/\S+/g, '')
+          .replace(/[🌤️🌡️🤗💧💨🌧️📅☔🌍]/gu, '')
+          .replace(/\s+/g, ' ')
+          .trim();
+
+        if (!spoken) {
+          if (voiceConversationMode) startVoiceRecognition();
+          return;
+        }
+
+        try { window.speechSynthesis.cancel(); } catch (_) {}
+
+        const utterance = new SpeechSynthesisUtterance(spoken);
+        utterance.lang = voiceLang();
+        utterance.rate = 0.96;
+        utterance.pitch = 1;
+
+        utterance.onstart = () => {
+          isSpeaking = true;
+          if (recognition) { try { recognition.abort(); } catch (_) {} }
+          setVoiceUI(false);
+          voiceBtn.classList.add('speaking');
+          voiceBtn.textContent = '🔊';
+          voiceStatus.textContent = 'OM is speaking…';
+        };
+
+        utterance.onend = () => {
+          isSpeaking = false;
+          setVoiceUI(false);
+          voiceStatus.textContent = voiceConversationMode ? '🎙️ Listening…' : '';
+          if (voiceConversationMode) startVoiceRecognition();
+        };
+
+        utterance.onerror = () => {
+          isSpeaking = false;
+          setVoiceUI(false);
+          if (voiceConversationMode) startVoiceRecognition();
+          else voiceStatus.textContent = '';
+        };
+
+        window.speechSynthesis.speak(utterance);
+      }
+
+      function startVoiceRecognition() {
+        if (!voiceConversationMode || isSpeaking || voiceSending || !SpeechRecognitionAPI) return;
+        clearVoiceSilenceTimer();
+        voiceStarting = true;
+        try {
+          recognition = createRecognition();
+          recognition.lang = voiceLang();
+          setTimeout(() => {
+            if (!voiceConversationMode || isSpeaking || !voiceStarting) return;
+            try { recognition.start(); } catch (_) {}
+          }, 80);
+        } catch (error) {
+          voiceStarting = false;
+          console.error(error);
+        }
+      }
+
+      // Microphone permission is requested only after the user taps the button.
+      async function ensureMicrophonePermission() {
+        if (!navigator.mediaDevices || !navigator.mediaDevices.getUserMedia) return true;
+
+        const stream = await navigator.mediaDevices.getUserMedia({ audio: true });
+        stream.getTracks().forEach(track => track.stop());
+        return true;
+      }
+
+      voiceBtn.addEventListener('click', async (event) => {
+        event.preventDefault();
+
+        if (isSpeaking) {
+          stopSpeaking();
+          return;
+        }
+
+        if (isListening || voiceStarting || voiceConversationMode) {
+          stopVoice();
+          voiceStatus.textContent = '';
+          return;
+        }
+
+        if (!SpeechRecognitionAPI) {
+          showVoiceError(
+            'This browser does not support web voice input. Use Google Chrome on Android or Safari on iPhone.'
+          );
+          return;
+        }
+
+        voiceConversationMode = true;
+        voiceStarting = true;
+        voiceStatus.textContent = '🎤 Starting microphone…';
+
+        try {
+          await ensureMicrophonePermission();
+          startVoiceRecognition();
+        } catch (error) {
+          console.error('Microphone permission error:', error);
+          voiceConversationMode = false;
+          voiceStarting = false;
+          if (error.name === 'NotAllowedError' || error.name === 'PermissionDeniedError') {
+            showVoiceError('🎤 Microphone permission was denied. Allow microphone access for OM, then reload the page.');
+          } else {
+            showVoiceError('🎤 Could not access the microphone. Check your phone settings and try again.');
+          }
+        }
+      });
+
+      // Prevent accidental page zoom/selection while using the voice button.
+      voiceBtn.addEventListener('touchstart', (e) => e.stopPropagation(), { passive: true });
+      voiceBtn.addEventListener('touchend', (e) => e.stopPropagation(), { passive: true });
+
+      const USERS_KEY = 'novaUsers';
+
+      function getUsers() {
+        const stored = localStorage.getItem(USERS_KEY);
+        if (!stored) return [];
+        try { return JSON.parse(stored); } catch { return []; }
+      }
+
+      function saveUsers(users) {
+        localStorage.setItem(USERS_KEY, JSON.stringify(users));
+      }
+
+      function setAuthView(mode) {
+        loginError.textContent = '';
+        signupError.textContent = '';
+        const isLogin = mode === 'login';
+        showLoginBtn.classList.toggle('active', isLogin);
+        showSignupBtn.classList.toggle('active', !isLogin);
+        loginPanel.classList.toggle('active', isLogin);
+        signupPanel.classList.toggle('active', !isLogin);
+      }
+
+      function openAuth(pushHistory = true) {
+        landingPage.classList.add('hidden');
+        authOverlay.classList.remove('hidden');
+        setAuthView('login');
+
+        if (pushHistory && location.hash !== '#login') {
+          history.pushState({ page: 'login' }, '', '#login');
+        }
+
+        document.getElementById('login-username').focus();
+      }
+
+      function openMainApp(pushHistory = true) {
+        landingPage.classList.add('hidden');
+        authOverlay.classList.add('hidden');
+        appShell.classList.remove('hidden');
+
+        const savedUser = localStorage.getItem('novaUser');
+        userBadge.textContent = savedUser || 'Guest';
+        updateAuthButton();
+
+        if (pushHistory && location.hash !== '#app') {
+          history.pushState({ page: 'app' }, '', '#app');
+        }
+      }
+
+      function updateAuthButton() {
+        if (!logoutBtn) return;
+        logoutBtn.textContent = localStorage.getItem('novaUser') ? 'Logout' : 'Login';
+      }
+
+      function setLoggedInUser(username) {
+        const cleanName = username.trim();
+        localStorage.setItem('novaUser', cleanName);
+        userBadge.textContent = cleanName;
+        authOverlay.classList.add('hidden');
+        landingPage.classList.add('hidden');
+        appShell.classList.remove('hidden');
+        updateAuthButton();
+
+        if (location.hash !== '#app') {
+          history.pushState({ page: 'app' }, '', '#app');
+        }
+      }
+
+      function showLoginPage(pushHistory = true) {
+        appShell.classList.add('hidden');
+        landingPage.classList.add('hidden');
+        authOverlay.classList.remove('hidden');
+        setAuthView('login');
+
+        if (pushHistory && location.hash !== '#login') {
+          history.pushState({ page: 'login' }, '', '#login');
+        }
+
+        document.getElementById('login-username').focus();
+      }
+
+      function initializeLogin() {
+        updateAuthButton();
+
+        if (location.hash === '#app') {
+          openMainApp(false);
+          return;
+        }
+
+        if (location.hash === '#login') {
+          showLoginPage(false);
+          return;
+        }
+
+        landingPage.classList.remove('hidden');
+        authOverlay.classList.add('hidden');
+        appShell.classList.add('hidden');
+      }
+
+      // Keep Chrome's Back/Forward buttons in sync with the app views.
+      window.addEventListener('popstate', () => {
+        if (location.hash === '#app') {
+          openMainApp(false);
+        } else if (location.hash === '#login') {
+          showLoginPage(false);
+        } else {
+          appShell.classList.add('hidden');
+          authOverlay.classList.add('hidden');
+          landingPage.classList.remove('hidden');
+          setAuthView('login');
+        }
+      });
+
+      openLoginBtn.addEventListener('click', openAuth);
+      landingCta.addEventListener('click', () => openMainApp(true));
+
+      showLoginBtn.addEventListener('click', () => setAuthView('login'));
+      showSignupBtn.addEventListener('click', () => setAuthView('signup'));
+
+      loginForm.addEventListener('submit', (event) => {
+        event.preventDefault();
+        const username = document.getElementById('login-username').value.trim();
+        const password = document.getElementById('login-password').value.trim();
+
+        if (!username || !password) {
+          loginError.textContent = 'Please enter both username and password.';
+          return;
+        }
+
+        const users = getUsers();
+        const user = users.find((entry) => entry.username.toLowerCase() === username.toLowerCase());
+
+        if (!user || user.password !== password) {
+          loginError.textContent = 'Invalid username or password.';
+          return;
+        }
+
+        loginError.textContent = '';
+        setLoggedInUser(user.username);
+        addMessage(`Welcome, ${user.username}! You are now logged in.`, 'Nova');
+      });
+
+      signupForm.addEventListener('submit', (event) => {
+        event.preventDefault();
+        const fullName = document.getElementById('signup-name').value.trim();
+        const username = document.getElementById('signup-username').value.trim();
+        const password = document.getElementById('signup-password').value.trim();
+
+        if (!fullName || !username || !password) {
+          signupError.textContent = 'Please fill in all fields.';
+          return;
+        }
+
+        if (password.length < 4) {
+          signupError.textContent = 'Password must be at least 4 characters long.';
+          return;
+        }
+
+        const users = getUsers();
+        const exists = users.some((entry) => entry.username.toLowerCase() === username.toLowerCase());
+
+        if (exists) {
+          signupError.textContent = 'That username is already taken.';
+          return;
+        }
+
+        users.push({ fullName, username, password });
+        saveUsers(users);
+        signupError.textContent = '';
+        signupForm.reset();
+        setLoggedInUser(username);
+        addMessage(`Account created for ${fullName}. Welcome, ${username}!`, 'Nova');
+      });
+
+      logoutBtn.addEventListener('click', () => {
+        if (localStorage.getItem('novaUser')) {
+          // Logged-in user: log out and return to the landing page.
+          localStorage.removeItem('novaUser');
+          userBadge.textContent = 'Guest';
+          appShell.classList.add('hidden');
+          authOverlay.classList.add('hidden');
+          landingPage.classList.remove('hidden');
+          setAuthView('login');
+          updateAuthButton();
+          history.pushState({ page: 'landing' }, '', location.pathname + location.search);
+        } else {
+          // Guest: the same button acts as Login.
+          showLoginPage(true);
+          updateAuthButton();
+        }
+      });
+
+      function addMessage(text, sender = 'OM') {
+        const row = document.createElement('div');
+        row.className = `message-row ${sender === 'You' ? 'user' : 'assistant'}`;
+
+        const avatar = document.createElement('div');
+        avatar.className = 'message-avatar';
+        avatar.textContent = sender === 'You' ? 'U' : 'N';
+
+        const bubble = document.createElement('div');
+        bubble.className = 'message-bubble';
+        const message = document.createElement('p');
+        message.textContent = text;
+
+        bubble.appendChild(message);
+        row.appendChild(avatar);
+        row.appendChild(bubble);
+        chatBox.appendChild(row);
+        chatBox.scrollTop = chatBox.scrollHeight;
+      }
+
+      function safeCalc(expr) {
+        /*
+         * Scientific calculator
+         * Supports:
+         * +, -, *, /, ÷, ×, %, ^, **, parentheses, unary +/-
+         * factorial !, decimals, scientific notation
+         * constants pi/π and e
+         * sqrt, cbrt, abs, sin, cos, tan, asin, acos, atan
+         * sinh, cosh, tanh, log, ln, exp, floor, ceil, round
+         * min, max, pow, mod, gcd, lcm, nCr, nPr
+         * implicit multiplication: 2(3+4), 2pi, 3sqrt(9)
+         * "of" percentage: 10% of 200
+         *
+         * Uses a tokenizer + shunting-yard evaluator rather than eval(),
+         * so expressions such as 23+23 are never accidentally changed.
+         */
+
+        let input = String(expr)
+          .replace(/[×·]/g, '*')
+          .replace(/÷/g, '/')
+          .replace(/[−–—]/g, '-')
+          .replace(/π/gi, 'pi')
+          .replace(/²/g, '^2')
+          .replace(/³/g, '^3')
+          .replace(/√/g, 'sqrt')
+          .replace(/,/g, ',')
+          .trim();
+
+        if (!input) return 'Please enter a calculation.';
+
+        // Natural-language operators and percentage wording.
+        input = input
+          .replace(/\bmultiplied\s+by\b/gi, '*')
+          .replace(/\bdivided\s+by\b/gi, '/')
+          .replace(/\bplus\b/gi, '+')
+          .replace(/\bminus\b/gi, '-')
+          .replace(/\btimes\b/gi, '*')
+          .replace(/\bover\b/gi, '/');
+
+        const percentOf = input.match(
+          /^(.+?)\s*%\s*(?:of)\s*(.+)$/i
+        );
+        if (percentOf) {
+          input = `(${percentOf[1]})/100*(${percentOf[2]})`;
+        }
+
+        // ^ and ** both mean exponentiation.
+        input = input.replace(/\^/g, '**');
+
+        const constants = {
+          pi: Math.PI,
+          e: Math.E,
+          tau: Math.PI * 2,
+          phi: (1 + Math.sqrt(5)) / 2
+        };
+
+        const functions = {
+          sqrt: { fn: Math.sqrt, args: 1 },
+          cbrt: { fn: Math.cbrt, args: 1 },
+          abs: { fn: Math.abs, args: 1 },
+          sin: { fn: Math.sin, args: 1 },
+          cos: { fn: Math.cos, args: 1 },
+          tan: { fn: Math.tan, args: 1 },
+          asin: { fn: Math.asin, args: 1 },
+          acos: { fn: Math.acos, args: 1 },
+          atan: { fn: Math.atan, args: 1 },
+          sinh: { fn: Math.sinh, args: 1 },
+          cosh: { fn: Math.cosh, args: 1 },
+          tanh: { fn: Math.tanh, args: 1 },
+          asinh: { fn: Math.asinh, args: 1 },
+          acosh: { fn: Math.acosh, args: 1 },
+          atanh: { fn: Math.atanh, args: 1 },
+          sind: { fn: x => Math.sin(x * Math.PI / 180), args: 1 },
+          cosd: { fn: x => Math.cos(x * Math.PI / 180), args: 1 },
+          tand: { fn: x => Math.tan(x * Math.PI / 180), args: 1 },
+          log: { fn: Math.log10, args: 1 },
+          ln: { fn: Math.log, args: 1 },
+          log2: { fn: Math.log2, args: 1 },
+          exp: { fn: Math.exp, args: 1 },
+          floor: { fn: Math.floor, args: 1 },
+          ceil: { fn: Math.ceil, args: 1 },
+          round: { fn: Math.round, args: 1 },
+          trunc: { fn: Math.trunc, args: 1 },
+          sign: { fn: Math.sign, args: 1 },
+          pow: { fn: Math.pow, args: 2 },
+          mod: { fn: (a, b) => a % b, args: 2 },
+          min: { fn: Math.min, args: 2, variadic: true },
+          max: { fn: Math.max, args: 2, variadic: true },
+          gcd: {
+            fn: (a, b) => {
+              a = Math.abs(Math.trunc(a));
+              b = Math.abs(Math.trunc(b));
+              while (b) [a, b] = [b, a % b];
+              return a;
+            },
+            args: 2
+          },
+          lcm: {
+            fn: (a, b) => {
+              a = Math.trunc(a);
+              b = Math.trunc(b);
+              if (!a || !b) return 0;
+              let x = Math.abs(a), y = Math.abs(b);
+              while (y) [x, y] = [y, x % y];
+              return Math.abs(a / x * b);
+            },
+            args: 2
+          },
+          ncr: {
+            fn: (n, r) => {
+              n = Math.trunc(n); r = Math.trunc(r);
+              if (n < 0 || r < 0 || r > n) throw new Error('Invalid nCr');
+              r = Math.min(r, n - r);
+              let result = 1;
+              for (let i = 1; i <= r; i++) result = result * (n - r + i) / i;
+              return result;
+            },
+            args: 2
+          },
+          npr: {
+            fn: (n, r) => {
+              n = Math.trunc(n); r = Math.trunc(r);
+              if (n < 0 || r < 0 || r > n) throw new Error('Invalid nPr');
+              let result = 1;
+              for (let i = 0; i < r; i++) result *= n - i;
+              return result;
+            },
+            args: 2
+          }
+        };
+
+        function factorial(n) {
+          if (!Number.isFinite(n) || n < 0 || !Number.isInteger(n) || n > 170) {
+            throw new Error('Factorial is defined here for integers 0 through 170.');
+          }
+          let result = 1;
+          for (let i = 2; i <= n; i++) result *= i;
+          return result;
+        }
+
+        // Tokenizer.
+        const tokens = [];
+        let i = 0;
+
+        function isLetter(ch) {
+          return /[A-Za-z_]/.test(ch);
+        }
+
+        function isDigit(ch) {
+          return /[0-9]/.test(ch);
+        }
+
+        while (i < input.length) {
+          const ch = input[i];
+
+          if (/\s/.test(ch)) {
+            i++;
+            continue;
+          }
+
+          if (isDigit(ch) || ch === '.') {
+            const rest = input.slice(i);
+            const match = rest.match(
+              /^(?:\d+(?:\.\d*)?|\.\d+)(?:[eE][+-]?\d+)?/
+            );
+            if (!match) throw new Error('Invalid number');
+            tokens.push({ type: 'number', value: Number(match[0]) });
+            i += match[0].length;
+            continue;
+          }
+
+          if (isLetter(ch)) {
+            const match = input.slice(i).match(/^[A-Za-z_][A-Za-z0-9_]*/);
+            const name = match[0].toLowerCase();
+            if (!(name in constants) && !(name in functions)) {
+              throw new Error(`Unknown name: ${name}`);
+            }
+
+            i += match[0].length;
+
+            // Function token only when followed by "(".
+            let j = i;
+            while (j < input.length && /\s/.test(input[j])) j++;
+            if (name in functions) {
+              if (input[j] !== '(') {
+                throw new Error(`${name} requires parentheses.`);
+              }
+              tokens.push({ type: 'function', value: name });
+            } else {
+              tokens.push({ type: 'number', value: constants[name] });
+            }
+            continue;
+          }
+
+          if (input.slice(i, i + 2) === '**') {
+            tokens.push({ type: 'operator', value: '**' });
+            i += 2;
+            continue;
+          }
+
+          if ('+-*/%(),!'.includes(ch)) {
+            if (ch === '(') tokens.push({ type: 'leftParen', value: ch });
+            else if (ch === ')') tokens.push({ type: 'rightParen', value: ch });
+            else if (ch === ',') tokens.push({ type: 'comma', value: ch });
+            else if (ch === '!') tokens.push({ type: 'factorial', value: ch });
+            else tokens.push({ type: 'operator', value: ch });
+            i++;
+            continue;
+          }
+
+          throw new Error(`Unsupported character: ${ch}`);
+        }
+
+        // Add implicit multiplication.
+        const expanded = [];
+        const endsValue = t =>
+          t && (t.type === 'number' || t.type === 'rightParen' || t.type === 'factorial');
+        const startsValue = t =>
+          t && (t.type === 'number' || t.type === 'leftParen' || t.type === 'function');
+
+        for (let k = 0; k < tokens.length; k++) {
+          const a = tokens[k];
+          const b = tokens[k + 1];
+
+          expanded.push(a);
+
+          if (endsValue(a) && startsValue(b)) {
+            expanded.push({ type: 'operator', value: '*' });
+          }
+        }
+
+        // Shunting-yard.
+        const output = [];
+        const stack = [];
+        const argCounts = [];
+
+        const precedence = {
+          'u+': 5,
+          'u-': 5,
+          '**': 4,
+          '*': 3,
+          '/': 3,
+          '%': 3,
+          '+': 2,
+          '-': 2
+        };
+
+        const rightAssociative = new Set(['**', 'u+', 'u-']);
+
+        function popOperator() {
+          const top = stack.pop();
+          if (!top || top.type !== 'operator') throw new Error('Invalid operator');
+          output.push(top);
+        }
+
+        let previousToken = null;
+
+        for (let k = 0; k < expanded.length; k++) {
+          const token = expanded[k];
+
+          if (token.type === 'number') {
+            output.push(token);
+          } else if (token.type === 'function') {
+            stack.push(token);
+          } else if (token.type === 'factorial') {
+            if (!previousToken ||
+                !(previousToken.type === 'number' ||
+                  previousToken.type === 'rightParen' ||
+                  previousToken.type === 'factorial')) {
+              throw new Error('Factorial needs a number or expression.');
+            }
+            output.push(token);
+          } else if (token.type === 'leftParen') {
+            stack.push(token);
+            if (previousToken && previousToken.type === 'function') {
+              argCounts.push(1);
+            } else {
+              argCounts.push(null);
+            }
+          } else if (token.type === 'comma') {
+            while (stack.length && stack[stack.length - 1].type !== 'leftParen') {
+              popOperator();
+            }
+            if (!stack.length) throw new Error('Unexpected comma.');
+            if (argCounts[argCounts.length - 1] !== null) {
+              argCounts[argCounts.length - 1]++;
+            } else {
+              throw new Error('Comma is only valid inside a function.');
+            }
+          } else if (token.type === 'rightParen') {
+            while (stack.length && stack[stack.length - 1].type !== 'leftParen') {
+              popOperator();
+            }
+            if (!stack.length) throw new Error('Mismatched parentheses.');
+            stack.pop();
+
+            const count = argCounts.pop();
+
+            if (stack.length && stack[stack.length - 1].type === 'function') {
+              const fn = stack.pop();
+              fn.argCount = count === null ? 0 : count;
+              output.push(fn);
+            }
+          } else if (token.type === 'operator') {
+            let op = token.value;
+
+            // Unary + and -.
+            if ((op === '+' || op === '-') &&
+                (!previousToken ||
+                 previousToken.type === 'operator' ||
+                 previousToken.type === 'leftParen' ||
+                 previousToken.type === 'comma')) {
+              op = 'u' + op;
+            }
+
+            const current = { type: 'operator', value: op };
+            while (stack.length && stack[stack.length - 1].type === 'operator') {
+              const top = stack[stack.length - 1].value;
+              const shouldPop = rightAssociative.has(op)
+                ? precedence[op] < precedence[top]
+                : precedence[op] <= precedence[top];
+
+              if (!shouldPop) break;
+              popOperator();
+            }
+            stack.push(current);
+          }
+
+          previousToken = token;
+        }
+
+        while (stack.length) {
+          if (stack[stack.length - 1].type === 'leftParen') {
+            throw new Error('Mismatched parentheses.');
+          }
+          if (stack[stack.length - 1].type === 'function') {
+            throw new Error('Missing parentheses.');
+          }
+          popOperator();
+        }
+
+        // Evaluate RPN.
+        const values = [];
+
+        for (const token of output) {
+          if (token.type === 'number') {
+            values.push(token.value);
+            continue;
+          }
+
+          if (token.type === 'factorial') {
+            const a = values.pop();
+            if (a === undefined) throw new Error('Invalid factorial.');
+            values.push(factorial(a));
+            continue;
+          }
+
+          if (token.type === 'operator') {
+            if (token.value === 'u+' || token.value === 'u-') {
+              const a = values.pop();
+              if (a === undefined) throw new Error('Invalid unary operator.');
+              values.push(token.value === 'u-' ? -a : a);
+              continue;
+            }
+
+            const b = values.pop();
+            const a = values.pop();
+            if (a === undefined || b === undefined) throw new Error('Invalid expression.');
+
+            let result;
+            switch (token.value) {
+              case '+': result = a + b; break;
+              case '-': result = a - b; break;
+              case '*': result = a * b; break;
+              case '/':
+                if (b === 0) throw new Error('Division by zero.');
+                result = a / b;
+                break;
+              case '%': result = a % b; break;
+              case '**': result = a ** b; break;
+              default: throw new Error('Unknown operator.');
+            }
+            values.push(result);
+            continue;
+          }
+
+          if (token.type === 'function') {
+            const info = functions[token.value];
+            const count = token.argCount ?? info.args;
+
+            if (!info.variadic && count !== info.args) {
+              throw new Error(`${token.value} needs ${info.args} argument(s).`);
+            }
+
+            if (values.length < count) throw new Error('Missing function argument(s).');
+
+            const args = values.splice(values.length - count, count);
+            values.push(info.fn(...args));
+          }
+        }
+
+        if (values.length !== 1) throw new Error('Invalid expression.');
+
+        const result = values[0];
+        if (typeof result !== 'number' || !Number.isFinite(result)) {
+          return 'The result is not a finite number.';
+        }
+
+        // Remove floating-point noise while retaining useful precision.
+        const clean = Math.abs(result) < 1e-12 ? 0 :
+          (Number.isInteger(result) ? result : Number(result.toPrecision(12)));
+
+        return String(clean);
+      }
+
+      // ===== Live Weather =====
+      // Uses Open-Meteo's public geocoding + forecast APIs.
+      // No API key is required for non-commercial use.
+      function weatherDescription(code) {
+        const map = {
+          0: 'Clear sky',
+          1: 'Mainly clear',
+          2: 'Partly cloudy',
+          3: 'Overcast',
+          45: 'Fog',
+          48: 'Depositing rime fog',
+          51: 'Light drizzle',
+          53: 'Moderate drizzle',
+          55: 'Dense drizzle',
+          56: 'Light freezing drizzle',
+          57: 'Dense freezing drizzle',
+          61: 'Light rain',
+          63: 'Moderate rain',
+          65: 'Heavy rain',
+          66: 'Light freezing rain',
+          67: 'Heavy freezing rain',
+          71: 'Light snow',
+          73: 'Moderate snow',
+          75: 'Heavy snow',
+          77: 'Snow grains',
+          80: 'Light rain showers',
+          81: 'Moderate rain showers',
+          82: 'Violent rain showers',
+          85: 'Light snow showers',
+          86: 'Heavy snow showers',
+          95: 'Thunderstorm',
+          96: 'Thunderstorm with slight hail',
+          99: 'Thunderstorm with heavy hail'
+        };
+        return map[code] || 'Unknown conditions';
+      }
+
+      function extractWeatherPlace(input) {
+        let place = input.trim()
+          .replace(/^(?:please\s+)?(?:give|show|tell|check|get)\s+(?:me\s+)?/i, '')
+          .replace(/^(?:the\s+)?weather(?:\s+(?:report|forecast))?\s*(?:of|for|in|at|near)?\s*/i, '')
+          .replace(/^(?:report|forecast)\s+(?:for|of|in|at)\s+/i, '')
+          .trim();
+
+        if (!place || /^(today|tomorrow|now|there|here)$/i.test(place)) {
+          return '';
+        }
+
+        // Remove common trailing time words while preserving the place.
+        place = place.replace(/\s+(?:today|tomorrow|now)$/i, '').trim();
+        return place;
+      }
+
+      async function getWeather(place) {
+        const query = place.trim();
+        if (!query) return "Please tell me a place for the weather report.";
+
+        try {
+          // Ask the geocoder for several candidates instead of trusting only
+          // the first result. This fixes duplicate place names worldwide.
+          const geoUrl =
+            "https://geocoding-api.open-meteo.com/v1/search?name=" +
+            encodeURIComponent(query) +
+            "&count=10&language=en&format=json";
+
+          const geoResponse = await fetch(geoUrl);
+          if (!geoResponse.ok) throw new Error("Location search failed.");
+          const geo = await geoResponse.json();
+
+          if (!geo.results?.length) {
+            return `I couldn't find "${query}". Try adding the country or state.`;
+          }
+
+          const normalized = query.toLowerCase().replace(/[^a-z0-9]+/g, " ").trim();
+          const candidates = [...geo.results].sort((a, b) => {
+            const an = (a.name || "").toLowerCase().replace(/[^a-z0-9]+/g, " ").trim();
+            const bn = (b.name || "").toLowerCase().replace(/[^a-z0-9]+/g, " ").trim();
+            return ((bn === normalized) ? 100 : 0) + ((b.feature_code || "").startsWith("P") ? 10 : 0)
+                 - (((an === normalized) ? 100 : 0) + ((a.feature_code || "").startsWith("P") ? 10 : 0));
+          });
+
+          for (const loc of candidates.slice(0, 8)) {
+            try {
+              const p = new URLSearchParams({
+                latitude: loc.latitude,
+                longitude: loc.longitude,
+                current: "temperature_2m,relative_humidity_2m,apparent_temperature,precipitation,weather_code,wind_speed_10m",
+                daily: "weather_code,temperature_2m_max,temperature_2m_min,precipitation_probability_max,precipitation_sum,wind_speed_10m_max,sunrise,sunset",
+                forecast_days: "7",
+                timezone: "auto"
+              });
+
+              const r = await fetch("https://api.open-meteo.com/v1/forecast?" + p.toString());
+              if (!r.ok) continue;
+              const w = await r.json();
+              if (!w.current || !w.daily) continue;
+
+              const desc = {
+                0:"Clear sky",1:"Mainly clear",2:"Partly cloudy",3:"Overcast",
+                45:"Fog",48:"Rime fog",51:"Light drizzle",53:"Drizzle",55:"Dense drizzle",
+                56:"Light freezing drizzle",57:"Dense freezing drizzle",61:"Light rain",
+                63:"Moderate rain",65:"Heavy rain",66:"Light freezing rain",67:"Heavy freezing rain",
+                71:"Light snow",73:"Moderate snow",75:"Heavy snow",77:"Snow grains",
+                80:"Light rain showers",81:"Rain showers",82:"Heavy rain showers",
+                85:"Light snow showers",86:"Heavy snow showers",95:"Thunderstorm",
+                96:"Thunderstorm with hail",99:"Thunderstorm with heavy hail"
+              };
+
+              const displayName = [...new Set([loc.name, loc.admin1, loc.country].filter(Boolean))].join(", ");
+              const c = w.current, d = w.daily;
+              const tempUnit = w.current_units?.temperature_2m || "°C";
+              const windUnit = w.current_units?.wind_speed_10m || "km/h";
+
+              let text = `🌤️ Weather for ${displayName}\n\n`;
+              text += `🌡️ Temperature: ${c.temperature_2m}${tempUnit}\n`;
+              text += `☁️ Condition: ${desc[c.weather_code] || "Weather data available"}\n`;
+              text += `🤗 Feels like: ${c.apparent_temperature}${tempUnit}\n`;
+              text += `💧 Humidity: ${c.relative_humidity_2m}%\n`;
+              text += `💨 Wind: ${c.wind_speed_10m} ${windUnit}\n`;
+              text += `🌧️ Precipitation: ${c.precipitation} mm\n\n`;
+              text += `📅 7-day forecast:\n`;
+
+              for (let i = 0; i < Math.min(7, d.time.length); i++) {
+                text += `• ${d.time[i]}: ${d.temperature_2m_min[i]}–${d.temperature_2m_max[i]}${tempUnit}, ${desc[d.weather_code[i]] || "Forecast available"}, rain chance ${d.precipitation_probability_max?.[i] ?? 0}%\n`;
+              }
+
+              return text;
+            } catch (_) {
+              // Try the next matching location.
+            }
+          }
+
+          return `I found "${query}", but the weather service did not return usable forecast data. Try adding the country or state.`;
+        } catch (error) {
+          console.error("Weather lookup error:", error);
+          return "I couldn't reach the live weather service right now. Please check your internet connection and try again.";
+        }
+      }
+
+      // ===== OM MEMORY =====
+      // Simple persistent browser memory, kept separately for each logged-in username.
+      function memoryKey() {
+        const user = localStorage.getItem('omCurrentUser') || 'guest';
+        return 'omMemory_' + user.toLowerCase().replace(/[^a-z0-9_-]/g, '_');
+      }
+
+      function loadMemory() {
+        try { return JSON.parse(localStorage.getItem(memoryKey()) || '[]'); } catch (_) { return []; }
+      }
+
+      function saveMemory(items) {
+        localStorage.setItem(memoryKey(), JSON.stringify(items.slice(-50)));
+      }
+
+      function rememberFact(fact) {
+        const clean = fact.trim().replace(/^[:,-]+\s*/, '');
+        if (!clean) return 'Tell me what you want me to remember.';
+        const items = loadMemory();
+        const exists = items.some(x => x.toLowerCase() === clean.toLowerCase());
+        if (!exists) items.push(clean);
+        saveMemory(items);
+        return exists ? `I already remember: ${clean}` : `Got it. I’ll remember: ${clean}`;
+      }
+
+      function memoryReply() {
+        const items = loadMemory();
+        if (!items.length) return 'I don’t have any saved memories yet. Say “remember that …” to save one.';
+        return 'Here’s what I remember:\n' + items.map((x, i) => `${i + 1}. ${x}`).join('\n');
+      }
+
+      function forgetMemory() {
+        localStorage.removeItem(memoryKey());
+        return 'Done. I cleared OM’s saved memory for this account.';
+      }
+
+      memoryBtn?.addEventListener('click', () => {
+        const items = loadMemory();
+        const message = items.length ? memoryReply() : 'OM has no saved memories yet.';
+        addMessage(message, 'OM');
+      });
+
+      async function getReply(input) {
+        const text = input.trim();
+        if (!text) return 'Please type something.';
+        const lower = text.toLowerCase();
+
+        if (/^(?:what do you remember|what can you remember|show my memories|show memory|my memories)$/i.test(text)) {
+          return memoryReply();
+        }
+        if (/^(?:forget all memories|forget everything you remember|clear memory|clear memories)$/i.test(text)) {
+          return forgetMemory();
+        }
+        const rememberMatch = text.match(/^(?:remember(?: that)?|save(?: this)?(?: in memory)?|don't forget(?: that)?)\s+(.+)$/i);
+        if (rememberMatch) return rememberFact(rememberMatch[1]);
+
+
+        if (lower.includes('hello') || lower.includes('hi')) {
+          return 'Hello! I am OM. I can help with time, date, math, searches, and productivity tasks.';
+        }
+
+        if (lower.includes('time')) {
+          return `The current time is ${new Date().toLocaleTimeString([], { hour: '2-digit', minute: '2-digit' })}.`;
+        }
+
+        if (lower.includes('date') || lower.includes('today')) {
+          return `Today is ${new Date().toLocaleDateString([], { weekday: 'long', year: 'numeric', month: 'long', day: 'numeric' })}.`;
+        }        // Calculator: accept direct expressions and natural-language requests.
+        const calcMatch = text.match(
+          /^(?:calculate|compute|what\s+is|what's|solve|evaluate|find)\s+(.+)$/i
+        );
+
+        // A direct mathematical expression must contain a digit and an operator,
+        // or a recognized function/constant.
+        const directMath = /[0-9]/.test(text) &&
+          /[+\-*/%()^×xX÷!]/.test(text);
+
+        const functionMath = /^(?:sqrt|cbrt|abs|sin|cos|tan|asin|acos|atan|sinh|cosh|tanh|log|ln|exp|floor|ceil|round|pow|min|max|gcd|lcm|ncr|npr)\s*\(/i.test(text.trim());
+
+        if (calcMatch) {
+          return `The answer is ${safeCalc(calcMatch[1])}.`;
+        }
+
+        if (directMath || functionMath) {
+          return `The answer is ${safeCalc(text)}.`;
+        }
+
+        if (lower.includes('open youtube')) return 'Opening YouTube in your browser.';
+        if (lower.includes('open google')) return 'Opening Google in your browser.';
+        if (lower.includes('weather') || lower.includes('forecast')) {
+          const place = extractWeatherPlace(text);
+          return await getWeather(place);
+        }
+        if (lower.includes('search')) return 'I can open a search for that topic in the browser.';
+        if (lower.includes('remember')) return 'I can store simple memory details in the desktop assistant project.';
+
+        // For normal conversation, use the OM backend connected to OpenAI.
+        try {
+          const response = await fetch('/api/chat', {
+            method: 'POST',
+            headers: { 'Content-Type': 'application/json' },
+            body: JSON.stringify({ message: text })
+          });
+
+          const data = await response.json();
+          if (!response.ok) {
+            throw new Error(data.error || 'AI request failed');
+          }
+          return data.reply || 'I did not receive a response from the AI.';
+        } catch (error) {
+          console.error('AI chat error:', error);
+          return 'I could not connect to the AI right now. Please make sure the OM server is running.';
+        }
+      }
+
+      function handleSend(useVoice = false) {
+        const text = chatInput.value.trim();
+        if (!text) return;
+
+        addMessage(text, 'You');
+        chatInput.value = '';
+
+        // getReply can perform a live weather lookup, so wait for its result.
+        getReply(text)
+          .then((response) => {
+            setTimeout(() => {
+              addMessage(response, 'OM');
+              if (useVoice) speakReply(response);
+              else voiceStatus.textContent = '';
+            }, 180);
+          })
+          .catch((error) => {
+            console.error(error);
+            addMessage('Sorry, I could not process that request.', 'OM');
+          });
+      }
+
+      sendBtn.addEventListener('click', handleSend);
+      chatInput.addEventListener('keydown', (event) => {
+        if (event.key === 'Enter' && !event.shiftKey) {
+          event.preventDefault();
+          handleSend();
+        }
+      });
+
+      document.querySelectorAll('.prompt-chip').forEach((button) => {
+        button.addEventListener('click', () => {
+          chatInput.value = button.textContent;
+          handleSend();
+        });
+      });
+
+      initializeLogin();
+    </script>
+  </body>
+</html>
