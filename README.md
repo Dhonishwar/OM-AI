@@ -121,12 +121,18 @@ The API key stays on the server rather than in the frontend.
 | Empty message | Send an empty request | Backend returns an error | ✅ Pass |
 | Production deployment | Open the Render URL | OM loads and responds online | ✅ Pass |
 
-## Security
 
-- Store the OpenAI API key in environment variables.
-- Never put the API key in frontend JavaScript.
-- Never upload `.env` to GitHub.
-- Use Render environment variables for production secrets.
+## 🔐 Security
+
+OM follows basic security practices for API-based applications:
+
+- The OpenAI API key is stored in environment variables.
+- API credentials are never included in frontend JavaScript.
+- The `.env` file must not be committed to GitHub.
+- Production secrets are stored using Render environment variables.
+- The backend validates incoming chat requests before sending them to the AI service.
+
+> **Note:** This project is an educational/internship project and should receive additional security hardening before production use at scale.
 
 ## Project Objectives
 
