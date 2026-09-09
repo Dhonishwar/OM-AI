@@ -143,18 +143,20 @@ OM follows basic security practices for API-based applications:
 - Deploy a real application online.
 - Demonstrate a complete internship portfolio project.
 
-## Future Scope
+## 🚀 Future Scope
+
+Future versions of OM can include:
 
 - Persistent cloud-based memory
 - Database integration
-- File/document analysis
-- Web search
-- Tasks and reminders
+- File and document analysis
+- Web search capabilities
+- Task and reminder management
 - Multi-language voice support
-- Stronger authentication
+- Advanced authentication and authorization
 - Synchronized conversation history
-- Usage analytics
-- Additional AI tools and integrations
+- Usage analytics and monitoring
+- Integration with additional AI tools and services
 
 ## Internship Value
 
