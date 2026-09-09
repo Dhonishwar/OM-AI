@@ -39,6 +39,7 @@ AI Response
   ↓
 OM Web Interface
 ```
+![OM-AI Architecture](architecture.png)
 
 ## Project Structure
 
