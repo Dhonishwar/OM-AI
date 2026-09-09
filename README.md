@@ -107,17 +107,19 @@ OM can be deployed as a Node.js web service on Render.
 
 The API key stays on the server rather than in the frontend.
 
-## Testing
 
-| Test | Expected Result |
-|---|---|
-| `Hello OM` | OM returns a response |
-| `What is 2 + 2?` | OM returns `4` |
-| Voice input | Speech becomes a message |
-| Voice response | OM speaks the response |
-| Remember a fact | The fact is stored |
-| `What do you remember?` | Saved memories are reported |
-| Empty message | Backend returns an error |
+## 🧪 Testing
+
+| Test Case | Input | Expected Result | Status |
+|---|---|---|---|
+| Basic chat | `Hello OM` | OM returns a natural response | ✅ Pass |
+| Mathematics | `What is 2 + 2?` | OM returns `4` | ✅ Pass |
+| Voice input | Speak a question | Speech is converted to text | ✅ Pass |
+| Voice response | Ask OM a question | OM speaks the response | ✅ Pass |
+| Memory | `Remember that my favorite color is blue` | Fact is saved | ✅ Pass |
+| Memory retrieval | `What do you remember?` | Saved memory is displayed | ✅ Pass |
+| Empty message | Send an empty request | Backend returns an error | ✅ Pass |
+| Production deployment | Open the Render URL | OM loads and responds online | ✅ Pass |
 
 ## Security
 
